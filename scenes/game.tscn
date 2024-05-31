@@ -1,0 +1,61 @@
+[gd_scene load_steps=12 format=3 uid="uid://d36yut7teevt8"]
+
+[ext_resource type="PackedScene" uid="uid://dh076p4nipnpf" path="res://scenes/music.tscn" id="1_ls3gf"]
+[ext_resource type="PackedScene" uid="uid://12mj5ai4b81t" path="res://scenes/player.tscn" id="2_00mqd"]
+[ext_resource type="Texture2D" uid="uid://c5rdpqtwtxsqp" path="res://assets/sprites/chicken.png" id="2_jlv2y"]
+[ext_resource type="PackedScene" uid="uid://djtw2ap456o65" path="res://scenes/background.tscn" id="2_pffel"]
+[ext_resource type="Texture2D" uid="uid://bt3bl45osgaoy" path="res://assets/sprites/chicken-flap.png" id="3_63jui"]
+[ext_resource type="PackedScene" uid="uid://shsildhjilw8" path="res://scenes/killzone.tscn" id="3_yke2f"]
+[ext_resource type="Texture2D" uid="uid://b05abmctksu7d" path="res://assets/sprites/chicken-hit.png" id="4_hmxaq"]
+[ext_resource type="PackedScene" uid="uid://cab5ybaxpl2dn" path="res://scenes/spike.tscn" id="4_ubtr1"]
+[ext_resource type="Script" path="res://scripts/Spawner.gd" id="7_xjc2l"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_52ev8"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_wv1bj"]
+
+[node name="Game" type="Node2D"]
+
+[node name="Music" parent="." instance=ExtResource("1_ls3gf")]
+
+[node name="Player" parent="." instance=ExtResource("2_00mqd")]
+sprite_normal = ExtResource("2_jlv2y")
+sprite_flap = ExtResource("3_63jui")
+sprite_dead = ExtResource("4_hmxaq")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+offset = Vector2(500, 0)
+zoom = Vector2(0.65, 0.65)
+limit_top = -500
+limit_bottom = -500
+
+[node name="Background" parent="." instance=ExtResource("2_pffel")]
+position = Vector2(-1000, 0)
+
+[node name="Background2" parent="." instance=ExtResource("2_pffel")]
+position = Vector2(1000, 0)
+
+[node name="Spawner" type="Node" parent="." node_paths=PackedStringArray("player")]
+script = ExtResource("7_xjc2l")
+spike = ExtResource("4_ubtr1")
+player = NodePath("../Player")
+
+[node name="Timer" type="Timer" parent="Spawner"]
+
+[node name="Limits" type="Node" parent="."]
+
+[node name="KillzoneBottom" parent="Limits" instance=ExtResource("3_yke2f")]
+position = Vector2(0, 365)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Limits/KillzoneBottom"]
+shape = SubResource("WorldBoundaryShape2D_52ev8")
+
+[node name="KillzoneTop" parent="Limits" instance=ExtResource("3_yke2f")]
+position = Vector2(0, -500)
+rotation = -3.14159
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Limits/KillzoneTop"]
+shape = SubResource("WorldBoundaryShape2D_wv1bj")
+
+[connection signal="timeout" from="Spawner/Timer" to="Music" method="_on_timer_timeout"]
+[connection signal="timeout" from="Spawner/Timer" to="Spawner" method="_on_timer_timeout"]
